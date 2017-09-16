@@ -22,8 +22,16 @@ pathFinding ?
 '''
 
 TAILLE_ADN = 50
+PROBA_MUT = .15
+TOURNAMENT_SIZE = 5
+ELITISM = True
 
-laby = ["xxxxxxxxxxxsxxxxxxxxx",
+
+
+
+
+
+laby =["xxxxxxxxxxxsxxxxxxxxx",
        "xoxxxxxxxxooxxxxxxxxx",
        "xoxxxxoxxxoxxxxxxxxox",
        "xoxxooooxxoxxxxxxxoox",
@@ -46,7 +54,7 @@ laby = ["xxxxxxxxxxxsxxxxxxxxx",
        "xxxxxxxxxxxexxxxxxxxx"]
 
 
-coordEntree = (11,20)
+coordEntree = (20,11)
 coordSortie = (0,12)
 
 map_int_to_dir = { 0 : 'UP',
@@ -55,18 +63,40 @@ map_int_to_dir = { 0 : 'UP',
                    3 : 'RIGHT' }
 
 class Chercheur:
-
   def __init__(self):
     self.listeDir = []
     self.x = coordEntree[0]
     self.y = coordEntree[1]
+    #Initialisation de l'ADN
     for i in range(TAILLE_ADN):
       #Ajoute un entier entre 0 et 3 (inclus) qui signifie la direction
       self.listeDir.append(randint(0,3))
 
+  #Renvoie le point final du Chercheur après ses déplacements
+  def moveInLab(self):
+    cnt = 0
+    x = self.x
+    y = self.y
+    listePossibleMoves = [el if ( 0 < el[0] < 20 and 0 < el[1] < 19 ) else None for el in [(x,y-1),(x,y+1),(x-1,y),(x+1,y)]]
+    for moveNumber in self.listDir:
+      cnt += 1
+      nextMove = listePossibleMoves[moveNumber]
+      if nextMove is not None and laby[nextMove[0]][nextMove[1]] != 'x':
+        self.x = nextMove[0]
+        self.y = nextMove[1]
+        if laby[self.x][self.y] == 's':
+          break
+    lastPos = (self.x,self.y)
+    self.x = coordEntree[0]
+    self.y = coordEntree[1]
+    return lastPos,cnt
 
   def getFitness(self):
-    print("A implémenter")
+    dist = 0
+    posChercheur,pasEconomises = self.moveInLab()
+    if pasEconomises == 0:
+      dist = distance(posChercheur)
+    return dist - pasEconomises
 
 
 
@@ -78,9 +108,10 @@ class Equipe:
       #for i in range(tailleEquipe):
         #self.listeChercheur.append(Chercheur())
     else:
+      #self.listeChercheur = []
       self.listeChercheur = [None for chercheur in range(tailleEquipe)]
 
-  #Méthode pour faire equipe[i]
+	#Méthode pour faire equipe[i]
   def __getitem__(self,index):
     return self.listeChercheur[index]
 
@@ -105,3 +136,51 @@ class Equipe:
         maxFitness = chercheur.getFitness()
         bestChercheur = chercheur
     return bestChercheur
+
+
+def distance(coord):
+  x = pow((coord[0]-coordSortie[0]),2)
+  y = pow((coord[1]-coordSortie[1]),2)
+  return sqrt(x+y)
+
+#Change une partie de l'ADN aléatoirement
+def mutation(enfant):
+	#Si l'enfant doit muter renvoie l'enfant modifier
+  #sinon renvoie l'enfant tel quel
+
+def crossover(parent1,parent2):
+  #crée un enfant vide
+  #rempli son adn a partir du génome des parents
+  #renvoi l'enfant
+
+def tournoi(equipe):
+	#Trouve 5 chercheurs aléatoire
+  #Compare leur fitness
+  #Renvoi le meilleur chercheur
+
+#crossover
+'''
+1) trouver deux parents
+	On a besoin de l'équipe
+  On a besoin de tournament_size
+2) Faire s'acoupler ces parents
+	Besoin d'une méthode d'accouplement
+3) Muter l'enfant
+	Besoin de la fonction de mutation
+for chercheur in equipe:
+  parent1 = tournoi(equipe)
+  parent2 = tournoi(equipe)
+  enfant = crossover(parent1,parent2)
+  newEquipe.add(enfant)
+
+
+  Je me fais de la place:
+
+  Si le chercheur arrive en 20 déplacements
+  Est-ce qu'on dit qu'il aura une meilleure fitness
+  que celui qui arrive en 30 ?
+  ou osef ?
+
+
+'''
+def evolveEquipe
